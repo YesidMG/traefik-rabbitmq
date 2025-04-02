@@ -1,0 +1,56 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.3
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/dev/stdout"
+      - "--accesslog.format=json"
+      #- "--accesslog.filters.statusCodes=400-499,500-599"
+      #- "--accesslog.filters.retryAttempts=true"
+      #- "--accesslog.filters.minDuration=10ms"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      # Middleware para agregar encabezados de tracking
+      - "traefik.http.middlewares.req-headers.headers.customrequestheaders.X-Request-ID=requestid"
+      - "traefik.http.middlewares.req-headers.headers.customrequestheaders.X-Trace-Time=responsetime"
+      - "traefik.http.middlewares.test-auth.basicauth.users=alex:$$2y$$05$$pEfyQFy5gONDUHId6qvbz.WHha5CP8mMtS.FISGnjH.FpaIV8Kju2"
+      - "traefik.http.routers.app.middlewares=ratelimiter"
+      # Middleware para limitación de velocidad
+      - "traefik.http.middlewares.ratelimiter.ratelimit.average=10"  # 10 solicitudes por segundo
+      - "traefik.http.middlewares.ratelimiter.ratelimit.burst=20"    # Se permite una ráfaga de hasta 20 solicitudes
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami.middlewares=test-auth,req-headers"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: node-backend
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`backend.docker.localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.backend.middlewares=test-auth,req-headers"
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-server
+    restart: unless-stopped
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.rule=Host(`nginx.docker.localhost`)"
+      - "traefik.http.routers.nginx.middlewares=test-auth,req-headers"
+      - "traefik.http.services.nginx.loadbalancer.server.port=80"
