@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monitor de Infraestructura</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .service-count { font-weight: bold; }
+        button { padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Monitor de Infraestructura</h1>
+        
+        <div class="card">
+            <h2>Estado de Servicios</h2>
+            <div id="status">Cargando...</div>
+            <button onclick="fetchRegistro()">Actualizar</button>
+        </div>
+        
+        <div class="card">
+            <h2>Rutas Activas</h2>
+            <ul>
+                <li><strong>/cliente/app1</strong> - Cliente App 1</li>
+                <li><strong>/cliente/app2</strong> - Cliente App 2</li>
+                <li><strong>/cliente/app3</strong> - Cliente App 3</li>
+                <li><strong>/registro</strong> - API de Registro (autenticación requerida)</li>
+                <li><strong>/monitor</strong> - Panel de Monitoreo</li>
+                <li><strong>/dashboard</strong> - Traefik Dashboard</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function fetchRegistro() {
+            document.getElementById('status').innerHTML = "Obteniendo datos...";
+            
+            // Usar credenciales codificadas para este ejemplo (admin:123)
+            fetch('/registro', {
+                headers: {
+                    'Authorization': 'Basic YWRtaW46MTIz'  // admin:123 en Base64
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error de autenticación');
+                }
+                return response.json();
+            })
+            .then(data => {
+                let html = '<table>';
+                html += '<tr><th>Servicio</th><th>Contador</th></tr>';
+                
+                if (Object.keys(data).length === 0) {
+                    html += '<tr><td colspan="2">No hay registros todavía</td></tr>';
+                } else {
+                    for (const [servicio, contador] of Object.entries(data)) {
+                        html += `<tr><td>${servicio}</td><td class="service-count">${contador}</td></tr>`;
+                    }
+                }
+                
+                html += '</table>';
+                document.getElementById('status').innerHTML = html;
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML = 
+                    `<p style="color: red;">Error: ${error.message}</p>`;
+            });
+        }
+
+        // Cargar datos al inicio
+        document.addEventListener('DOMContentLoaded', fetchRegistro);
+        
+        // Actualizar automáticamente cada 5 segundos
+        setInterval(fetchRegistro, 5000);
+    </script>
+</body>
+</html>
