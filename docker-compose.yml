@@ -32,8 +32,8 @@ services:
     environment:
       - SERVICE_ID=app1
     labels:
-      - "traefik.http.routers.app1.rule=Host(`localhost`) && PathPrefix(`/cliente/app1`)"
-      - "traefik.http.middlewares.strip-app1.stripPrefix.prefixes=/cliente/app1"
+      - "traefik.http.routers.app1.rule=Host(`localhost`) && PathPrefix(`/cliente/uno`)"
+      - "traefik.http.middlewares.strip-app1.stripPrefix.prefixes=/cliente/uno"
       - "traefik.http.routers.app1.middlewares=strip-app1"
       - "traefik.http.services.app1.loadbalancer.server.port=5000"
 
@@ -43,8 +43,8 @@ services:
     environment:
       - SERVICE_ID=app2
     labels:
-      - "traefik.http.routers.app2.rule=Host(`localhost`) && PathPrefix(`/cliente/app2`)"
-      - "traefik.http.middlewares.strip-app2.stripPrefix.prefixes=/cliente/app2"
+      - "traefik.http.routers.app2.rule=Host(`localhost`) && PathPrefix(`/cliente/dos`)"
+      - "traefik.http.middlewares.strip-app2.stripPrefix.prefixes=/cliente/dos"
       - "traefik.http.routers.app2.middlewares=strip-app2"
       - "traefik.http.services.app2.loadbalancer.server.port=5000"
 
@@ -54,8 +54,8 @@ services:
     environment:
       - SERVICE_ID=app3
     labels:
-      - "traefik.http.routers.app3.rule=Host(`localhost`) && PathPrefix(`/cliente/app3`)"
-      - "traefik.http.middlewares.strip-app3.stripPrefix.prefixes=/cliente/app3"
+      - "traefik.http.routers.app3.rule=Host(`localhost`) && PathPrefix(`/cliente/tres`)"
+      - "traefik.http.middlewares.strip-app3.stripPrefix.prefixes=/cliente/tres"
       - "traefik.http.routers.app3.middlewares=strip-app3"
       - "traefik.http.services.app3.loadbalancer.server.port=5000"
 
