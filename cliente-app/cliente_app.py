@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 app = Flask(__name__)
 
 SERVICE_ID = os.environ.get('SERVICE_ID', 'unknown')
-API_REGISTRO_URL = "http://registro-app:5000/registro"
+API_REGISTRO_URL = "http://registro-app:5000/reporte"
 
 def registrar_servicio():
     headers = {"X-Service-ID": SERVICE_ID}

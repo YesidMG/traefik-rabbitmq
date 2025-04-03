@@ -20,7 +20,7 @@ services:
     build:
       context: ./registro-app
     labels:
-      - "traefik.http.routers.registro.rule=Host(`localhost`) && PathPrefix(`/registro`)"
+      - "traefik.http.routers.registro.rule=Host(`localhost`) && PathPrefix(`/reporte`)"
       - "traefik.http.routers.registro.entrypoints=web"
       - "traefik.http.routers.registro.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$dhfKKzDd$$1llfwmUPc7hQ3tbx3ypEw/"
