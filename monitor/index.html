@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Monitor de Infraestructura</title>
+    <title>Reporte</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Monitor de Infraestructura</h1>
+        <h1>Reporte de Infraestructura</h1>
         
         <div class="card">
             <h2>Estado de Servicios</h2>
@@ -29,7 +29,7 @@
                 <li><strong>/cliente/app1</strong> - Cliente App 1</li>
                 <li><strong>/cliente/app2</strong> - Cliente App 2</li>
                 <li><strong>/cliente/app3</strong> - Cliente App 3</li>
-                <li><strong>/registro</strong> - API de Registro (autenticación requerida)</li>
+                <li><strong>/reporte</strong> - API de Registro (autenticación requerida)</li>
                 <li><strong>/monitor</strong> - Panel de Monitoreo</li>
                 <li><strong>/dashboard</strong> - Traefik Dashboard</li>
             </ul>
@@ -41,7 +41,7 @@
             document.getElementById('status').innerHTML = "Obteniendo datos...";
             
             // Usar credenciales codificadas para este ejemplo (admin:123)
-            fetch('/registro', {
+            fetch('/reportes', {
                 headers: {
                     'Authorization': 'Basic YWRtaW46MTIz'  // admin:123 en Base64
                 }

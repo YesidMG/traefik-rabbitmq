@@ -13,6 +13,12 @@ def obtener_registro():
     return str(dict(registro))
 
 
+@app.route("/reportes", methods=["GET"])
+def obtener_registros():
+    # La autenticación es manejada por Traefik
+    return dict(registro)
+
+
 @app.route("/reporte", methods=["POST"])
 def registrar_cliente():
     # Obtener el identificador del cliente desde el header

@@ -63,8 +63,8 @@ services:
     build:
       context: ./monitor
     labels:
-      - "traefik.http.routers.monitor.rule=Host(`localhost`) && PathPrefix(`/monitor`)"
+      - "traefik.http.routers.monitor.rule=Host(`localhost`) && PathPrefix(`/panel`)"
       - "traefik.http.routers.monitor.entrypoints=web"
-      - "traefik.http.middlewares.strip-monitor.stripPrefix.prefixes=/monitor"
+      - "traefik.http.middlewares.strip-monitor.stripPrefix.prefixes=/panel"
       - "traefik.http.routers.monitor.middlewares=strip-monitor"
       - "traefik.http.services.monitor.loadbalancer.server.port=80"
