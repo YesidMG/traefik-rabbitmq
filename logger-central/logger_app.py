@@ -11,6 +11,14 @@ LOG_FILE = os.path.join(LOG_DIR, "service_logs.txt")
 # Asegurar que el directorio de logs existe
 os.makedirs(LOG_DIR, exist_ok=True)
 
+# Borrar el archivo de logs si existe al iniciar el servicio
+if os.path.exists(LOG_FILE):
+    try:
+        os.remove(LOG_FILE)
+        print(f"Archivo de logs {LOG_FILE} eliminado al iniciar")
+    except Exception as e:
+        print(f"Error al eliminar el archivo de logs: {str(e)}")
+
 @app.route('/logs', methods=['POST'])
 def receive_log():
     """Recibe los logs de los servicios cliente y los guarda en un archivo."""
