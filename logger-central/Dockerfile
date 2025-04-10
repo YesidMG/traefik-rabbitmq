@@ -2,14 +2,16 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Instalar dependencias
-RUN pip install flask
+# Instalar curl para healthchecks
+RUN apt-get update && apt-get install -y curl && \
+    pip install flask && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copiar el código de la aplicación
 COPY logger_app.py .
 
-# Crear el directorio para los logs
 RUN mkdir -p /app/logs
+VOLUME /app/logs
 
 # Exponer el puerto
 EXPOSE 5000

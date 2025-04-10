@@ -5,11 +5,19 @@ services:
       - "--api.insecure=true"
       - "--providers.docker"
       - "--entrypoints.web.address=:80"
+      - "--ping=true"
+      - "--ping.entrypoint=web"
+      # Configuración de timeouts
+      - "--serversTransport.forwardingTimeouts.dialTimeout=30s"
+      - "--serversTransport.forwardingTimeouts.responseHeaderTimeout=30s"
+      - "--serversTransport.forwardingTimeouts.idleConnTimeout=90s"
     ports:
       - "80:80"
       - "8080:8080" # Dashboard solo accesible localmente
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rabbitmq-network
     labels:
       - "traefik.http.routers.traefik.rule=Host(`localhost`) && PathPrefix(`/dashboard`)"
       - "traefik.http.routers.traefik.service=api@internal"
@@ -25,6 +33,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.enable=false"
     networks:
@@ -33,12 +46,26 @@ services:
   reporte-app:
     build:
       context: ./reporte-app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rabbitmq-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/reporte"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.http.routers.registro.rule=Host(`localhost`) && PathPrefix(`/reporte`)"
       - "traefik.http.routers.registro.entrypoints=web"
       - "traefik.http.routers.registro.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$dhfKKzDd$$1llfwmUPc7hQ3tbx3ypEw/"
       - "traefik.http.services.registro.loadbalancer.server.port=5000"
+      # Configuraciones de timeout para este servicio específico
+      - "traefik.http.middlewares.registro-timeout.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.registro-timeout.forwardauth.address=http://reporte-app:5000"
+      - "traefik.http.middlewares.registro-timeout.forwardauth.authResponseHeaders=X-Forwarded-User"
 
   cliente-1:
     build:
@@ -46,15 +73,23 @@ services:
     environment:
       - SERVICE_ID=app1
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - rabbitmq-network
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.http.routers.app1.rule=Host(`localhost`) && PathPrefix(`/cliente/uno`)"
       - "traefik.http.middlewares.strip-app1.stripPrefix.prefixes=/cliente/uno"
       - "traefik.http.routers.app1.middlewares=strip-app1"
       - "traefik.http.services.app1.loadbalancer.server.port=5000"
+      # Configuraciones de timeout para este servicio específico
+      - "traefik.http.services.app1.loadbalancer.responseForwarding.flushInterval=100ms"
 
   cliente-2:
     build:
@@ -62,15 +97,23 @@ services:
     environment:
       - SERVICE_ID=app2
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - rabbitmq-network
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.http.routers.app2.rule=Host(`localhost`) && PathPrefix(`/cliente/dos`)"
       - "traefik.http.middlewares.strip-app2.stripPrefix.prefixes=/cliente/dos"
       - "traefik.http.routers.app2.middlewares=strip-app2"
       - "traefik.http.services.app2.loadbalancer.server.port=5000"
+      # Configuraciones de timeout para este servicio específico
+      - "traefik.http.services.app2.loadbalancer.responseForwarding.flushInterval=100ms"
 
   cliente-3:
     build:
@@ -78,19 +121,29 @@ services:
     environment:
       - SERVICE_ID=app3
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - rabbitmq-network
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.http.routers.app3.rule=Host(`localhost`) && PathPrefix(`/cliente/tres`)"
       - "traefik.http.middlewares.strip-app3.stripPrefix.prefixes=/cliente/tres"
       - "traefik.http.routers.app3.middlewares=strip-app3"
       - "traefik.http.services.app3.loadbalancer.server.port=5000"
+      # Configuraciones de timeout para este servicio específico
+      - "traefik.http.services.app3.loadbalancer.responseForwarding.flushInterval=100ms"
 
   panel:
     build:
       context: ./panel
+    networks:
+      - rabbitmq-network
     labels:
       - "traefik.http.routers.monitor.rule=Host(`localhost`) && PathPrefix(`/panel`)"
       - "traefik.http.routers.monitor.entrypoints=web"
@@ -103,6 +156,13 @@ services:
       context: ./logger-central
     volumes:
       - ./logger-central/logs:/app/logs
+    networks:
+      - rabbitmq-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/logs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.http.routers.logger.rule=Host(`localhost`) && PathPrefix(`/logs`)"
       - "traefik.http.routers.logger.entrypoints=web"
