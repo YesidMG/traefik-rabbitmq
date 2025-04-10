@@ -16,9 +16,9 @@ services:
       - "traefik.http.middlewares.strip-dashboard.stripPrefix.prefixes=/dashboard"
       - "traefik.http.routers.traefik.middlewares=strip-dashboard"
 
-  registro-app:
+  reporte-app:
     build:
-      context: ./registro-app
+      context: ./reporte-app
     labels:
       - "traefik.http.routers.registro.rule=Host(`localhost`) && PathPrefix(`/reporte`)"
       - "traefik.http.routers.registro.entrypoints=web"
@@ -26,9 +26,9 @@ services:
       - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$dhfKKzDd$$1llfwmUPc7hQ3tbx3ypEw/"
       - "traefik.http.services.registro.loadbalancer.server.port=5000"
 
-  cliente-app1:
+  cliente-1:
     build:
-      context: ./cliente-app
+      context: ./cliente
     environment:
       - SERVICE_ID=app1
     labels:
@@ -37,9 +37,9 @@ services:
       - "traefik.http.routers.app1.middlewares=strip-app1"
       - "traefik.http.services.app1.loadbalancer.server.port=5000"
 
-  cliente-app2:
+  cliente-2:
     build:
-      context: ./cliente-app
+      context: ./cliente
     environment:
       - SERVICE_ID=app2
     labels:
@@ -48,9 +48,9 @@ services:
       - "traefik.http.routers.app2.middlewares=strip-app2"
       - "traefik.http.services.app2.loadbalancer.server.port=5000"
 
-  cliente-app3:
+  cliente-3:
     build:
-      context: ./cliente-app
+      context: ./cliente
     environment:
       - SERVICE_ID=app3
     labels:
@@ -59,9 +59,9 @@ services:
       - "traefik.http.routers.app3.middlewares=strip-app3"
       - "traefik.http.services.app3.loadbalancer.server.port=5000"
 
-  monitor:
+  panel:
     build:
-      context: ./monitor
+      context: ./panel
     labels:
       - "traefik.http.routers.monitor.rule=Host(`localhost`) && PathPrefix(`/panel`)"
       - "traefik.http.routers.monitor.entrypoints=web"

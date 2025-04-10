@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reporte</title>
+    <title>Panel de Control</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -15,29 +15,29 @@
 </head>
 <body>
     <div class="container">
-        <h1>Reporte de Infraestructura</h1>
+        <h1>Panel de Infraestructura</h1>
         
         <div class="card">
             <h2>Estado de Servicios</h2>
             <div id="status">Cargando...</div>
-            <button onclick="fetchRegistro()">Actualizar</button>
+            <button onclick="fetchReporte()">Actualizar</button>
         </div>
         
         <div class="card">
             <h2>Rutas Activas</h2>
             <ul>
-                <li><strong>/cliente/app1</strong> - Cliente App 1</li>
-                <li><strong>/cliente/app2</strong> - Cliente App 2</li>
-                <li><strong>/cliente/app3</strong> - Cliente App 3</li>
-                <li><strong>/reporte</strong> - API de Registro (autenticación requerida)</li>
-                <li><strong>/monitor</strong> - Panel de Monitoreo</li>
+                <li><strong>/cliente/uno</strong> - Cliente 1</li>
+                <li><strong>/cliente/dos</strong> - Cliente 2</li>
+                <li><strong>/cliente/tres</strong> - Cliente 3</li>
+                <li><strong>/reporte</strong> - API de Reporte (autenticación requerida)</li>
+                <li><strong>/panel</strong> - Panel de Control</li>
                 <li><strong>/dashboard</strong> - Traefik Dashboard</li>
             </ul>
         </div>
     </div>
 
     <script>
-        function fetchRegistro() {
+        function fetchReporte() {
             document.getElementById('status').innerHTML = "Obteniendo datos...";
             
             // Usar credenciales codificadas para este ejemplo (admin:123)
@@ -74,10 +74,10 @@
         }
 
         // Cargar datos al inicio
-        document.addEventListener('DOMContentLoaded', fetchRegistro);
+        document.addEventListener('DOMContentLoaded', fetchReporte);
         
         // Actualizar automáticamente cada 5 segundos
-        setInterval(fetchRegistro, 5000);
+        setInterval(fetchReporte, 5000);
     </script>
 </body>
 </html>
