@@ -68,3 +68,13 @@ services:
       - "traefik.http.middlewares.strip-monitor.stripPrefix.prefixes=/panel"
       - "traefik.http.routers.monitor.middlewares=strip-monitor"
       - "traefik.http.services.monitor.loadbalancer.server.port=80"
+
+  logger-central:
+    build:
+      context: ./logger-central
+    volumes:
+      - ./logger-central/logs:/app/logs
+    labels:
+      - "traefik.http.routers.logger.rule=Host(`localhost`) && PathPrefix(`/logs`)"
+      - "traefik.http.routers.logger.entrypoints=web"
+      - "traefik.http.services.logger.loadbalancer.server.port=5000"
