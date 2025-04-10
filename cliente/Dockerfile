@@ -2,8 +2,8 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY cliente_app.py .
+RUN pip install flask requests pika
 
-RUN pip install flask requests
+COPY cliente_app.py .
 
 CMD ["python", "cliente_app.py"]

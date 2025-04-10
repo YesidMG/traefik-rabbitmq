@@ -7,7 +7,7 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
-      - "8080:8080"  # Dashboard solo accesible localmente
+      - "8080:8080" # Dashboard solo accesible localmente
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
@@ -15,6 +15,20 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.middlewares.strip-dashboard.stripPrefix.prefixes=/dashboard"
       - "traefik.http.routers.traefik.middlewares=strip-dashboard"
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672" # Puerto estándar para la interfaz de gestión
+      - "5672:5672" # Puerto estándar para la comunicación
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    labels:
+      - "traefik.enable=false"
+    networks:
+      - rabbitmq-network
 
   reporte-app:
     build:
@@ -31,6 +45,11 @@ services:
       context: ./cliente
     environment:
       - SERVICE_ID=app1
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitmq-network
+    restart: on-failure
     labels:
       - "traefik.http.routers.app1.rule=Host(`localhost`) && PathPrefix(`/cliente/uno`)"
       - "traefik.http.middlewares.strip-app1.stripPrefix.prefixes=/cliente/uno"
@@ -42,6 +61,11 @@ services:
       context: ./cliente
     environment:
       - SERVICE_ID=app2
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitmq-network
+    restart: on-failure
     labels:
       - "traefik.http.routers.app2.rule=Host(`localhost`) && PathPrefix(`/cliente/dos`)"
       - "traefik.http.middlewares.strip-app2.stripPrefix.prefixes=/cliente/dos"
@@ -53,6 +77,11 @@ services:
       context: ./cliente
     environment:
       - SERVICE_ID=app3
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitmq-network
+    restart: on-failure
     labels:
       - "traefik.http.routers.app3.rule=Host(`localhost`) && PathPrefix(`/cliente/tres`)"
       - "traefik.http.middlewares.strip-app3.stripPrefix.prefixes=/cliente/tres"
@@ -78,3 +107,7 @@ services:
       - "traefik.http.routers.logger.rule=Host(`localhost`) && PathPrefix(`/logs`)"
       - "traefik.http.routers.logger.entrypoints=web"
       - "traefik.http.services.logger.loadbalancer.server.port=5000"
+
+networks:
+  rabbitmq-network:
+    driver: bridge
